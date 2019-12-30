@@ -23,7 +23,7 @@ services:
   backend-feed:
     image: stephanenoutsa/udacity-restapi-feed
     volumes:
-      - $HOME/.aws:/root/.aws
+      - C:\Users\Steph\.aws:/root/.aws
     environment:
       POSTGRESS_USERNAME: $POSTGRES_USERNAME
       POSTGRESS_PASSWORD: $POSTGRES_PASSWORD
