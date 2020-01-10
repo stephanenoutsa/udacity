@@ -37,8 +37,8 @@ plugins:
   - serverless-reqvalidator-plugin
   - serverless-iam-roles-per-function
 
-# package:
-#   individually: true
+package:
+  individually: true
 
 provider:
   tracing:
@@ -219,8 +219,6 @@ resources:
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
-          # - AttributeName: createdAt
-          #   AttributeType: S
           - AttributeName: todoId
             AttributeType: S
         KeySchema:
