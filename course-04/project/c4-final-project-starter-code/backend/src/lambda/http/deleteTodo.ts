@@ -6,6 +6,9 @@ import { cors } from 'middy/middlewares'
 
 import { deleteTodo } from '../../businessLogic/todos'
 import { getToken } from '../../auth/utils'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('delete-todo')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -21,9 +24,11 @@ export const handler = middy(
         body: ''
       }
     } catch (e) {
+      logger.error('Error: ' + e.message)
+
       return {
         statusCode: 500,
-        body: 'An error occurred in our server. Please try again later'
+        body: e.message
       }
     }
   }

@@ -4,18 +4,25 @@ import { TodoItem } from '../models/TodoItem'
 import { TodoAccess } from '../dataLayer/todoAccess'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
-import { parseUserId, getToken } from '../auth/utils'
+import { parseUserId } from '../auth/utils'
+import { createLogger } from '../utils/logger'
 
 const todoAccess = new TodoAccess()
 
-export const getAllTodos = async (): Promise<TodoItem[]> => {
-  return todoAccess.getAllTodos()
+const logger = createLogger('todos')
+
+export const getAllTodos = async (jwtToken: string): Promise<TodoItem[]> => {
+  const userId = parseUserId(jwtToken)
+
+  return await todoAccess.getAllTodos(userId)
 }
 
 export const createTodo = async (
   createTodoRequest: CreateTodoRequest,
   jwtToken: string
 ): Promise<TodoItem> => {
+  logger.info('In createTodo() function')
+
   const itemId = uuid.v4()
   const userId = parseUserId(jwtToken)
 
@@ -34,7 +41,10 @@ export const updateTodo = async (
   updateTodoRequest: UpdateTodoRequest,
   jwtToken: string
 ): Promise<TodoItem> => {
+  logger.info('In updateTodo() function')
+
   const userId = parseUserId(jwtToken)
+  logger.info('User Id: ' + userId)
 
   return await todoAccess.updateTodo({
     todoId,
@@ -50,11 +60,16 @@ export const deleteTodo = async (
   todoId: string,
   jwtToken: string
 ): Promise<string> => {
+  logger.info('In deleteTodo() function')
+
   const userId = parseUserId(jwtToken)
+  logger.info('User Id: ' + userId)
 
   return await todoAccess.deleteTodo(todoId, userId)
 }
 
 export const generateUploadUrl = async (todoId: string): Promise<string> => {
+  logger.info('In generateUploadUrl() function')
+
   return await todoAccess.generateUploadUrl(todoId)
 }

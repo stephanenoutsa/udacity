@@ -5,18 +5,30 @@ import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
 
 import { generateUploadUrl } from '../../businessLogic/todos'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('update-todo')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    const todoId = event.pathParameters.todoId
+    try {
+      const todoId = event.pathParameters.todoId
 
-    const uploadUrl = await generateUploadUrl(todoId)
+      const uploadUrl = await generateUploadUrl(todoId)
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        uploadUrl
-      })
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          uploadUrl
+        })
+      }
+    } catch (e) {
+      logger.error('Error: ' + e.message)
+
+      return {
+        statusCode: 500,
+        body: e.message
+      }
     }
   }
 )

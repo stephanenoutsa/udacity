@@ -5,18 +5,33 @@ import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
 
 import { getAllTodos } from '../../businessLogic/todos'
+import { getToken } from '../../auth/utils'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('get-todos')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     console.log('Processing event:', event)
 
-    const todos = await getAllTodos()
+    try {
+      const jwtToken: string = getToken(event.headers.Authorization)
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        items: todos
-      })
+      const todos = await getAllTodos(jwtToken)
+
+      return {
+        statusCode: 200,
+        body: JSON.stringify({
+          items: todos
+        })
+      }
+    } catch (e) {
+      logger.error('Error: ' + e.message)
+
+      return {
+        statusCode: 500,
+        body: e.message
+      }
     }
   }
 )

@@ -6,13 +6,10 @@ import { createLogger } from '../../utils/logger'
 import Axios from 'axios'
 import { Jwt } from '../../auth/Jwt'
 import { JwtPayload } from '../../auth/JwtPayload'
-// import { AuthAccess } from '../../dataLayer/authAccess'
 
 const logger = createLogger('auth')
 
 const jwksUrl = 'https://dev-nip0kv-e.auth0.com/.well-known/jwks.json'
-
-// const authAccess = new AuthAccess()
 
 export const handler = async (
   event: CustomAuthorizerEvent
@@ -64,15 +61,20 @@ const verifyToken = async (authHeader: string): Promise<JwtPayload> => {
   const kid = jwt.header.kid
 
   // Retrieve JWKS
-  const jwks = await Axios.get(jwksUrl)
+  const response = await Axios.get(jwksUrl)
+
+  const jwks = response.data.keys
+  logger.info('jwks: ' + jwks)
+
   const jwk = jwks[0]
+  logger.info('jwk: ' + jwk)
 
   if (kid !== jwk.kid) throw new Error('Key mismatch')
 
-  const cert = jwk.x5c[0]
+  const cert =
+    '-----BEGIN CERTIFICATE-----\n' + jwk.x5c[0] + '\n-----END CERTIFICATE-----'
 
-  // const secretObject = await authAccess.getSecret()
-  // const secret = secretObject[process.env.AUTH_0_SECRET_FIELD]
+  logger.info('cert:\n' + cert)
 
   return verify(token, cert, { algorithms: [alg] }) as JwtPayload
 }

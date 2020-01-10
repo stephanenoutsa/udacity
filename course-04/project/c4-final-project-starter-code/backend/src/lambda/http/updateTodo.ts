@@ -7,15 +7,18 @@ import { cors } from 'middy/middlewares'
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 import { updateTodo } from '../../businessLogic/todos'
 import { getToken } from '../../auth/utils'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('update-todo')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-    const todoId = event.pathParameters.todoId
-    const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
-
-    const jwtToken: string = getToken(event.headers.Authorization)
-
     try {
+      const todoId = event.pathParameters.todoId
+      const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
+
+      const jwtToken: string = getToken(event.headers.Authorization)
+
       await updateTodo(todoId, updatedTodo, jwtToken)
 
       return {
@@ -23,9 +26,11 @@ export const handler = middy(
         body: ''
       }
     } catch (e) {
+      logger.error('Error', { error: e.message })
+
       return {
         statusCode: 500,
-        body: 'An error occurred in our server. Please try again later'
+        body: e.message
       }
     }
   }
